@@ -1,0 +1,49 @@
+# Get forecast data for a given city list
+get_weather_forecaset_by_cities <- function(city_names){
+    df <- data.frame()
+    for (city_name in city_names){
+        # Forecast API URL
+        forecast_url <- 'https://api.openweathermap.org/data/2.5/forecast'
+        # Create query parameters
+        forecast_query <- list(q = city_name, appid = "b1fb052d8a5f428198cf9cd36a359d92", units="metric")
+        # Make HTTP GET call for the given city
+        json_list <- GET(forecast_url, query=forecast_query)
+        # Note that the 5-day forecast JSON result is a list of lists. You can print the reponse to check the results
+        results <- json_list$list
+
+        # Loop the json result
+        for(result in results) {
+            city <- c(city, city_name)
+            weather <- c(weather, json_result$weather[[1]]$main)
+            visibility <- c(visibility, json_result$visibility)
+            temp <- c(temp, json_result$main$temp)
+            temp_min <- c(temp_min, json_result$main$temp_min)
+            temp_max <- c(temp_max, json_result$main$temp_max)
+            pressure <- c(pressure, json_result$main$pressure)
+            humidity <- c(humidity, json_result$main$humidity)
+            wind_speed <- c(wind_speed, json_result$wind$speed)
+            wind_deg <- c(wind_deg, json_result$wind$deg)
+            forecast_datetime <- c(forecast_datetime, result$dt_txt)
+            months <- as.numeric(format(as.Date(forecast_datetime), '%m'))
+            index <- setNames( rep(c('winter', 'spring', 'summer','fall'),each=3), c(12,1:11))
+            season <- unname(index[as.character(months)])
+        }
+        
+        df <- data.frame(city=city,
+                         weather=weather,
+                         visibility=visibility,
+                         temp=temp,
+                         temp_min=temp_min,
+                         temp_max=temp_max,
+                         pressure=pressure,
+                         humidity=humidity,
+                         wind_speed=wind_speed,
+                         wind_deg=wind_deg,
+                         forecast_datetime=forecast_datetime,
+                         season=season)
+    }
+    
+    # Return a data frame
+    return(df)
+    
+}
